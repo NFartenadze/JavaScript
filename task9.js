@@ -1,17 +1,43 @@
 // Make a Cat constructor that takes arguments name and weight to instantiate a new cat object. The constructor should also have an averageWeight method that returns the average weight of cats created with the constructor.
 
-garfield = new Cat("garfield", 25);
-Cat.averageWeight(); // 25
+function Cat(name, weight) {
+  if (!name || !weight) {
+    throw new Error("properties must be provided");
+  }
 
-felix = new Cat("felix", 15);
-Cat.averageWeight(); // now 20
+  this.name = name;
+  this._weight = weight;
 
-// Cats can change weight. Use Object.defineProperty to write custom setters and getters for the weight property so that the following works properly even as instances change their weight value:
+  Object.defineProperty(this, "weight", {
+    get: function () {
+      return this._weight;
+    },
+    set: function (newWeight) {
+      Cat.totalWeight = Cat.totalWeight - this._weight + newWeight;
+      this._weight = newWeight;
+    },
+  });
 
-felix.weight = 25;
+  if (!Cat.totalWeight && !Cat.count) {
+    Cat.totalWeight = 0;
+    Cat.count = 0;
+  }
+
+  Cat.totalWeight += this.weight;
+  Cat.count += 1;
+}
+
+Cat.averageWeight = function () {
+  return Cat.totalWeight / Cat.count;
+};
+
+const garfield = new Cat("Garfield", 25);
+
+const felix = new Cat("Felix", 15);
+
+console.log("Average weight:", Cat.averageWeight()); // Output: 20
+
+felix.weight = 35;
 felix.weight; // 25
-Cat.averageWeight(); // now 25
-
-// Throw an error if name or weight not specified when invoking the constructor.
-
-// Cat.averageWeight() method should give the average weight of all cat instances created with Cat, even after if the instance's properties have changed.
+console.log(felix.weight);
+console.log(Cat.averageWeight()); // now 25
